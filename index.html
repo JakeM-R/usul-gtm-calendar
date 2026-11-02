@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2027 GTM conference calendar · built for Usul</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0d1418; --ink-2:#1c262c; --body:#5f686d; --muted:#8a9398;
+  --line:#e4e8e8; --tag:#ebefee; --paper:#ffffff; --pale:#dde5e4;
+  --hero:#0e161c; --hero-ink:#dfe6e6;
+  --slate-a:#a7b5bb; --slate-b:#7a8e98;
+  --green:#2c9a6a; --green-bg:#e3f3ea; --yellow:#f8efc0; --yellow-ink:#6b5a10;
+  --red:#b4473a;
+  --lane-a:#24343d; --lane-b:#4d6a78; --lane-c:#7f98a3; --lane-d:#a9bcc2;
+  --head:"Inter Tight", "Inter", system-ui, sans-serif; --ui:"Inter", system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* Top bar */
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;max-width:1180px;margin:0 auto}
+.brand{font-family:var(--head);font-weight:600;font-size:15px;letter-spacing:.02em;color:var(--ink)}
+.brand span{color:var(--muted);font-weight:500}
+.top small{color:var(--muted);font-size:13px}
+
+/* Hero */
+.hero{background:var(--hero);color:var(--hero-ink);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;opacity:.22;
+  background-image:radial-gradient(circle at 1px 1px,#8fa3ad 1.2px,transparent 1.6px);background-size:14px 14px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 90% at 70% 40%,#000 30%,transparent 75%);mask-image:radial-gradient(ellipse 70% 90% at 70% 40%,#000 30%,transparent 75%)}
+.hero .wrap{position:relative;padding-top:64px;padding-bottom:56px}
+.hero h1{font-family:var(--head);font-weight:500;letter-spacing:-.035em;line-height:1.02;font-size:clamp(36px,6vw,64px);margin:0 0 18px;max-width:17ch}
+.hero p{font-size:clamp(16px,2vw,19px);color:#b9c4c6;max-width:56ch;margin:0 0 26px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--pale);color:var(--ink);border:0;border-radius:8px;padding:12px 20px;font-weight:500;cursor:pointer;text-decoration:none}
+.btn:hover{background:#cfd9d8}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn.small{padding:8px 14px;font-size:14px}
+.btn:focus-visible,.chip:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+/* Layout */
+.main{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;padding-top:36px;padding-bottom:56px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+.main > *{min-width:0}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card{background:var(--paper);border-radius:12px;box-shadow:0 1px 2px rgba(13,20,24,.06),0 12px 32px rgba(13,20,24,.12);padding:20px}
+.stage{background:linear-gradient(180deg,var(--slate-a),var(--slate-b));border-radius:4px;padding:28px}
+@media (max-width:600px){.stage{padding:12px}}
+h2{font-family:var(--head);font-weight:500;letter-spacing:-.02em;font-size:22px;margin:0 0 4px}
+h3{font-family:var(--head);font-weight:600;font-size:14px;margin:0 0 10px}
+.sub{color:var(--body);margin:0 0 14px}
+.label{font-size:12px;font-weight:600;color:var(--ink-2);margin:16px 0 8px;display:flex;justify-content:space-between;align-items:baseline}
+.label:first-child{margin-top:0}
+.label em{font-style:normal;font-weight:400;color:var(--muted)}
+
+/* Controls */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 9px;font-size:13px;cursor:pointer;color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.presets .chip{background:var(--tag);border-color:var(--tag)}
+.row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:13px;margin:6px 0}
+.row input[type=range]{width:110px;accent-color:var(--ink)}
+.row output{display:inline-block;min-width:2.4em;text-align:right;color:var(--body);font-variant-numeric:tabular-nums}
+.num{display:grid;grid-template-columns:1fr 110px;gap:8px;align-items:center;font-size:13px;margin:6px 0}
+.num input{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-variant-numeric:tabular-nums;text-align:right}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+details.panel summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+details.panel summary::-webkit-details-marker{display:none}
+details.panel summary::after{content:"+";float:right;color:var(--muted)}
+details.panel[open] summary::after{content:"–"}
+.side{display:grid;gap:14px;position:sticky;top:16px}
+@media (max-width:900px){.side{position:static}}
+
+/* Summary */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:14px 0 18px}
+.stats div{padding:12px 14px}
+.stats div+div{border-left:1px solid var(--line)}
+@media (max-width:600px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div:nth-child(3){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}}
+.stats b{display:block;font-family:var(--head);font-weight:500;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--muted)}
+.over{color:var(--red)}
+
+/* Timeline */
+.tl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tl{position:relative;min-width:640px;padding-top:26px}
+.tl-months{position:absolute;top:0;left:90px;right:0;height:22px;display:flex}
+.tl-months div{flex:1;font-size:11px;color:var(--muted);border-left:1px solid var(--line);padding-left:4px}
+.lane{display:flex;align-items:stretch;height:48px;border-top:1px solid var(--line)}
+.lane:last-of-type{border-bottom:1px solid var(--line)}
+.lane-name{width:90px;flex:none;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+.lane-name i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.lane-track{position:relative;flex:1}
+.bar{position:absolute;top:8px;height:32px;border-radius:5px;color:#fff;font-size:11px;line-height:1.15;padding:3px 5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:default;min-width:6px}
+.bar small{display:block;opacity:.8;font-size:10px}
+.bar.pin{box-shadow:inset 0 0 0 2px #f2c94c}
+.bar .buf{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.25)}
+.fy{position:absolute;top:22px;bottom:0;width:0;border-left:1px dashed #9aa6ab;pointer-events:none}
+.fy span{position:absolute;bottom:-18px;left:-40px;width:80px;text-align:center;font-size:10px;color:var(--muted)}
+.q4{position:absolute;top:22px;bottom:0;background:rgba(44,154,106,.07);pointer-events:none}
+.q4 span{position:absolute;top:2px;left:6px;font-size:10px;color:var(--green);font-weight:600}
+.tl-foot{height:22px}
+.fy span{bottom:auto;top:-1px}
+/* Month agenda */
+.agenda{display:grid;gap:0;margin-top:18px;font-size:13px}
+.ag-row{display:grid;grid-template-columns:52px repeat(var(--lanes),minmax(0,1fr));border-top:1px solid var(--line)}
+.ag-row.head{border-top:0;font-size:12px;font-weight:600;color:var(--ink-2)}
+.ag-row > div{padding:7px 8px 7px 0;min-width:0}
+.ag-row .m{color:var(--muted);font-size:12px;padding-top:9px}
+.ag-row.fyrow{background:rgba(44,154,106,.06)}
+.ev-chip{display:block;border-left:3px solid;padding:2px 0 2px 7px;margin:2px 0;line-height:1.3}
+.ev-chip small{color:var(--muted);display:block;font-size:11px}
+.ev-chip.pin{border-left-width:5px}
+.ag-row .dash{color:#c3c9cb}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--body);margin-top:10px}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* Why not */
+.why{list-style:none;margin:0;padding:0}
+.why li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.why li:first-child{border-top:0}
+.why .r{color:var(--body);font-size:13px;grid-column:1/-1}
+.score{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* Table */
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th{text-align:left;font-weight:600;font-size:12px;color:var(--ink-2);padding:9px 10px 9px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td.ev{font-weight:500}
+td.ev small{display:block;color:var(--muted);font-weight:400}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:5px;background:var(--tag);color:var(--ink-2);white-space:nowrap}
+.tag.conf{background:var(--green-bg);color:var(--green);font-weight:600}
+.tag.proj{background:var(--yellow);color:var(--yellow-ink);font-weight:600}
+.tag.lane{color:#fff}
+.pinbox{display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;color:var(--body)}
+.pinbox input{accent-color:var(--ink)}
+.dim{color:var(--muted)}
+
+/* LLM */
+.llm{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:760px){.llm{grid-template-columns:1fr}}
+.llm ul{margin:0;padding-left:18px;color:var(--body)}
+.llm li{margin:4px 0}
+.demo{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fafbfb;font-size:13px}
+.demo .in{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--tag);border-radius:6px;padding:6px 8px;margin-bottom:10px;word-break:break-all}
+.demo dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}
+.demo dt{color:var(--muted)}
+.demo dd{margin:0}
+.badge-demo{display:inline-block;font-size:11px;font-weight:600;background:var(--yellow);color:var(--yellow-ink);border-radius:5px;padding:1px 7px;margin-left:6px;vertical-align:middle}
+
+section+section{margin-top:22px}
+footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:12px}
+footer p{margin:4px 0;max-width:90ch}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="brand">GTM calendar <span>· built for Usul</span></div><small>Built for the Chief of Staff application</small></div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Your 2027 conference calendar, clash-free</h1>
+    <p>Set what matters and who can travel. The planner picks events with no overlaps, inside budget, and shows you what it left out and why, timed against fiscal year-ends across the U.S. and allies.</p>
+    <a class="btn" href="#plan">See the plan <span aria-hidden="true">→</span></a>
+  </div>
+</header>
+
+<div class="wrap main">
+  <aside class="side" aria-label="Plan settings">
+    <div class="panel">
+      <div class="label">Team</div>
+      <div class="num"><label for="travellers">People who can travel</label><input id="travellers" type="number" min="1" max="4" value="2"></div>
+      <div class="num"><label for="budget">Total budget (USD)</label><input id="budget" type="number" min="0" step="1000" value="100000"></div>
+      <div class="num"><label for="qcap">Max events per quarter</label><input id="qcap" type="number" min="1" max="20" value="6"></div>
+      <div class="num"><label for="bufD">Travel days, U.S. event</label><input id="bufD" type="number" min="0" max="5" value="1"></div>
+      <div class="num"><label for="bufI">Travel days, international</label><input id="bufI" type="number" min="0" max="5" value="2"></div>
+      <p class="note">Travel days sit either side of an event. One person can't be in two places, including in transit.</p>
+    </div>
+
+    <div class="panel">
+      <div class="label">Where <em>quick sets</em></div>
+      <div class="chips presets" id="presets"></div>
+      <div class="label">Regions</div>
+      <div class="chips" id="f-region"></div>
+      <div class="label">Event type</div>
+      <div class="chips" id="f-type"></div>
+      <div class="label">Date status</div>
+      <div class="chips" id="f-status"></div>
+    </div>
+
+    <div class="panel">
+      <div class="label">What matters <em>your weights</em></div>
+      <div id="w-aud"></div>
+      <div class="label">Region weight</div>
+      <div id="w-reg"></div>
+      <p class="note">All weights start equal, so nothing is ranked until you rank it. 0 drops a category. Ties go to the cheaper trip.</p>
+    </div>
+
+    <details class="panel">
+      <summary>Trip cost (your numbers)</summary>
+      <div class="num" style="margin-top:12px"><label for="costD">Per person, U.S. event</label><input id="costD" type="number" min="0" step="250" value="3500"></div>
+      <div class="num"><label for="costI">Per person, international</label><input id="costI" type="number" min="0" step="250" value="7000"></div>
+      <div class="num"><label for="costX">Booth add-on, if exhibiting</label><input id="costX" type="number" min="0" step="1000" value="25000"></div>
+      <p class="note">Placeholders, not estimates of what Usul spends. Exhibit is set per event in the table.</p>
+    </details>
+  </aside>
+
+  <div>
+    <section id="plan">
+      <h2 id="plan-head">The plan</h2>
+      <p class="sub" id="plan-sub"></p>
+      <div class="stats" id="stats"></div>
+      <div class="stage">
+        <div class="card">
+          <div class="tl-scroll"><div class="tl" id="tl"></div></div>
+          <div class="legend" id="legend"></div>
+          <div class="agenda" id="agenda"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn small" id="ics">Download .ics</button>
+        <button class="btn small ghost" id="csv">Download CSV</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Left out, and why</h3>
+      <ul class="why" id="why"></ul>
+    </section>
+
+    <section class="panel">
+      <h3>All events <span class="dim" style="font-weight:400" id="count"></span></h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Dates</th><th>Event</th><th>Audience</th><th>Status</th><th>Plan</th><th>Must go</th><th>Exhibit</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+
+    <section class="panel">
+      <h3>With an LLM connector <span class="badge-demo">not live in this demo</span></h3>
+      <div class="llm">
+        <div>
+          <p class="sub" style="margin-bottom:8px">Weights are blunt. A connected model could do the filtering a person does by hand:</p>
+          <ul>
+            <li>Classify a new event from its URL: type, audience, dates, organiser.</li>
+            <li>Score fit against your own ICP notes, not just category sliders.</li>
+            <li>Read exhibitor and speaker lists, and flag customers and target accounts in the room.</li>
+            <li>Watch organiser pages and move projected dates to confirmed when they publish.</li>
+            <li>Draft meeting requests for the people worth seeing at each event.</li>
+          </ul>
+        </div>
+        <div class="demo" aria-label="Example output, preloaded">
+          <div class="in">afcea.org/events/technet-indo-pacific</div>
+          <dl>
+            <dt>Event</dt><dd>TechNet Indo-Pacific 2027</dd>
+            <dt>Dates</dt><dd>16–18 Nov 2027 <span class="tag proj">Projected</span></dd>
+            <dt>Type</dt><dd>Symposium</dd>
+            <dt>Audience</dt><dd>DoD &amp; services (INDOPACOM)</dd>
+            <dt>Fit</dt><dd>Matches example ICP note “Indo-Pacific maritime programs”</dd>
+            <dt>Clashes</dt><dd>MilCIS, Canberra (same week)</dd>
+          </dl>
+          <p class="note" style="margin-bottom:0">Preloaded example output. No model is called on this page.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<footer class="wrap">
+  <p><b>Demo data.</b> 29 public events for 2027, checked 2 Nov 2026. <span class="tag conf">Confirmed</span> means the organiser or an official source lists the 2027 dates. <span class="tag proj">Projected</span> means the dates come from event aggregators or prior-edition patterns, or sources disagree. Each event links to its source.</p>
+  <p>Fiscal year-ends: U.S. federal 30 Sep, UK, Canada and Japan 31 Mar, Australia 30 Jun.</p>
+  <p>Method: events are sorted by your weights, with must-go events placed first. Each one goes to the first traveller free across its dates plus travel days, within budget and the quarterly cap. A swap pass then replaces lower-scoring events when one higher-scoring event fits in their place. It's a good plan, not a proven optimum.</p>
+  <p>Built by Jake Makking-Robinson. Not affiliated with Usul.</p>
+</footer>
+
+<script>
+const EVENTS = [
+ {id:"idex",name:"IDEX",city:"Abu Dhabi",cc:"UAE",region:"Middle East",start:"2027-01-25",end:"2027-01-29",type:"Trade show",aud:"Allied MoD",status:"projected",src:"https://aviationsouk.com/events/idex-2027/",note:"Sources disagree: 21–25 vs 25–29 Jan"},
+ {id:"rmcs",name:"Rocky Mountain Cyberspace Symposium",short:"RMCS",city:"Colorado Springs",cc:"US",region:"U.S.",start:"2027-02-08",end:"2027-02-11",type:"Symposium",aud:"Intel & cyber",status:"projected",src:"https://govevents.com/listings.php?page=118"},
+ {id:"west",name:"WEST",city:"San Diego",cc:"US",region:"U.S.",start:"2027-02-16",end:"2027-02-18",type:"Trade show",aud:"DoD & services",status:"confirmed",src:"https://www.usni.org/events/all"},
+ {id:"nexus",name:"NCMA Nexus",city:"San Antonio",cc:"US",region:"U.S.",start:"2027-02-21",end:"2027-02-23",type:"Acquisition",aud:"Contracting & acquisition",status:"confirmed",src:"https://ncmahq.org/Web/Events/Events.aspx"},
+ {id:"avalon",name:"Avalon Airshow (trade days)",short:"Avalon",city:"Geelong",cc:"AU",region:"Asia-Pacific",start:"2027-02-23",end:"2027-02-26",type:"Trade show",aud:"Allied MoD",status:"confirmed",src:"https://www.defenceconnect.com.au/air/17897-dates-confirmed-for-avalon-australian-international-airshow-in-2027"},
+ {id:"afaw",name:"AFA Warfare Symposium",short:"AFA Warfare",city:"Aurora, CO",cc:"US",region:"U.S.",start:"2027-03-01",end:"2027-03-03",type:"Symposium",aud:"DoD & services",status:"projected",src:"https://theflyingengineer.com/aviation-events/type/defence-and-security/"},
+ {id:"ausagf",name:"AUSA Global Force Symposium",short:"AUSA GF",city:"Huntsville",cc:"US",region:"U.S.",start:"2027-03-16",end:"2027-03-18",type:"Symposium",aud:"DoD & services",status:"projected",src:"https://hallbrief.com/trade-shows/defense/2027"},
+ {id:"sas",name:"Sea-Air-Space",city:"National Harbor",cc:"US",region:"U.S.",start:"2027-04-04",end:"2027-04-07",type:"Trade show",aud:"DoD & services",status:"confirmed",src:"https://www.vdura.com/ai-infrastructure-events-calendar/sea-air-space-2027/"},
+ {id:"space",name:"Space Symposium",city:"Colorado Springs",cc:"US",region:"U.S.",start:"2027-04-12",end:"2027-04-15",type:"Symposium",aud:"Space",status:"projected",src:"https://www.spaceagenda.com/?p=61778"},
+ {id:"mdm",name:"Modern Day Marine",short:"MDM",city:"Washington, DC",cc:"US",region:"U.S.",start:"2027-04-13",end:"2027-04-15",type:"Trade show",aud:"DoD & services",status:"projected",src:"https://www.amtec.co/blog/aerospace-defense-conferences-2027"},
+ {id:"dseij",name:"DSEI Japan",city:"Chiba",cc:"JP",region:"Asia-Pacific",start:"2027-04-28",end:"2027-04-30",type:"Trade show",aud:"Allied MoD",status:"projected",src:"https://hallbrief.com/trade-shows/defense/2027"},
+ {id:"sof",name:"SOF Week",city:"Tampa",cc:"US",region:"U.S.",start:"2027-05-03",end:"2027-05-06",type:"Trade show",aud:"DoD & services",status:"projected",src:"https://www.defenseadvancement.com/events/sof-week/"},
+ {id:"tncyber",name:"TechNet Cyber",city:"Baltimore",cc:"US",region:"U.S.",start:"2027-05-11",end:"2027-05-13",type:"Symposium",aud:"Intel & cyber",status:"confirmed",src:"https://www.afcea.org/calendar/eventdet.jsp?event_id=79293"},
+ {id:"geoint",name:"GEOINT Symposium",short:"GEOINT",city:"Kissimmee",cc:"US",region:"U.S.",start:"2027-05-16",end:"2027-05-19",type:"Symposium",aud:"Intel & cyber",status:"confirmed",src:"https://usgif.org/geoint-symposium/2027-symposium/"},
+ {id:"defea",name:"DEFEA",city:"Athens",cc:"GR",region:"Europe",start:"2027-05-18",end:"2027-05-20",type:"Trade show",aud:"Allied MoD",status:"projected",src:"https://www.defenseadvancement.com/events/"},
+ {id:"feindef",name:"FEINDEF",city:"Madrid",cc:"ES",region:"Europe",start:"2027-05-18",end:"2027-05-20",type:"Trade show",aud:"Allied MoD",status:"projected",src:"https://www.defenseadvancement.com/events/"},
+ {id:"cansec",name:"CANSEC",city:"Ottawa",cc:"CA",region:"Canada",start:"2027-06-02",end:"2027-06-03",type:"Trade show",aud:"Allied MoD",status:"confirmed",src:"https://www.defenceandsecurity.ca/en/events/cansec-2027"},
+ {id:"paris",name:"Paris Air Show (trade days)",short:"Paris Air Show",city:"Le Bourget",cc:"FR",region:"Europe",start:"2027-06-14",end:"2027-06-17",type:"Trade show",aud:"Allied MoD",status:"confirmed",src:"https://www.bdli.de/en/dates/paris-air-show"},
+ {id:"ncmawc",name:"NCMA World Congress",short:"NCMA WC",city:"Aurora, CO",cc:"US",region:"U.S.",start:"2027-07-25",end:"2027-07-28",type:"Acquisition",aud:"Contracting & acquisition",status:"projected",src:"https://ncmahq.org/Web/Events/World-Congress.aspx",note:"Organiser pages show 25–27 and 25–28 Jul"},
+ {id:"mspo",name:"MSPO",city:"Kielce",cc:"PL",region:"Europe",start:"2027-08-31",end:"2027-09-03",type:"Trade show",aud:"Allied MoD",status:"projected",src:"https://www.wko.at/veranstaltungen/38012040-23b6-48ab-94a8-4703c48df58b"},
+ {id:"dsei",name:"DSEI",city:"London",cc:"UK",region:"UK",start:"2027-09-07",end:"2027-09-10",type:"Trade show",aud:"Allied MoD",status:"confirmed",src:"https://www.vdura.com/?p=16638"},
+ {id:"afaasc",name:"AFA Air, Space & Cyber",short:"AFA ASC",city:"National Harbor",cc:"US",region:"U.S.",start:"2027-09-20",end:"2027-09-22",type:"Symposium",aud:"DoD & services",status:"projected",src:"https://theflyingengineer.com/aviation-events/afa-air-space-and-cyber-conference-2027/",note:"Sources disagree: 14–16 vs 20–22 Sep"},
+ {id:"tadte",name:"TADTE",city:"Taipei",cc:"TW",region:"Asia-Pacific",start:"2027-09-23",end:"2027-09-25",type:"Trade show",aud:"Allied MoD",status:"projected",src:"https://hallbrief.com/trade-shows/defense/2027"},
+ {id:"ausa",name:"AUSA Annual Meeting",short:"AUSA",city:"Washington, DC",cc:"US",region:"U.S.",start:"2027-10-11",end:"2027-10-13",type:"Trade show",aud:"DoD & services",status:"projected",src:"https://www.showsbee.com/fairs/51004-AUSA-Annual-Meeting-2027.html"},
+ {id:"adex",name:"Seoul ADEX",city:"Seongnam",cc:"KR",region:"Asia-Pacific",start:"2027-10-19",end:"2027-10-24",type:"Trade show",aud:"Allied MoD",status:"projected",src:"https://theflyingengineer.com/aviation-events/seoul-adex-2027/"},
+ {id:"indopac",name:"Indo Pacific Maritime Expo",short:"Indo Pacific",city:"Sydney",cc:"AU",region:"Asia-Pacific",start:"2027-11-02",end:"2027-11-04",type:"Trade show",aud:"Allied MoD",status:"projected",src:"https://www.showsbee.com/events-3247-1.html"},
+ {id:"milcis",name:"MilCIS",city:"Canberra",cc:"AU",region:"Asia-Pacific",start:"2027-11-16",end:"2027-11-18",type:"Symposium",aud:"Intel & cyber",status:"projected",src:"https://www.showsbee.com/fairs/51004-AUSA-Annual-Meeting-2027.html"},
+ {id:"tnip",name:"TechNet Indo-Pacific",short:"TechNet IP",city:"Honolulu",cc:"US",region:"U.S.",start:"2027-11-16",end:"2027-11-18",type:"Symposium",aud:"DoD & services",status:"projected",src:"https://www.showsbee.com/fairs/51004-AUSA-Annual-Meeting-2027.html"},
+ {id:"iitsec",name:"I/ITSEC",city:"Orlando",cc:"US",region:"U.S.",start:"2027-11-29",end:"2027-12-03",type:"Trade show",aud:"DoD & services",status:"projected",src:"https://www.showsbee.com/fairs/51004-AUSA-Annual-Meeting-2027.html"}
+];
+
+const REGIONS = ["U.S.","Canada","UK","Europe","Middle East","Asia-Pacific"];
+const TYPES = ["Trade show","Symposium","Acquisition"];
+const AUDS = ["DoD & services","Intel & cyber","Space","Contracting & acquisition","Allied MoD"];
+const STATUS = [["confirmed","Confirmed"],["projected","Projected"]];
+const PRESETS = {"Everywhere":REGIONS,"U.S. only":["U.S."],"Five Eyes":["U.S.","Canada","UK","Asia-Pacific"],"NATO":["U.S.","Canada","UK","Europe"],"Indo-Pacific":["U.S.","Asia-Pacific"]};
+const LANE_COL = ["var(--lane-a)","var(--lane-b)","var(--lane-c)","var(--lane-d)"];
+const LANE_HEX = ["#24343d","#4d6a78","#7f98a3","#a9bcc2"];
+const DAY = 86400000, Y0 = Date.UTC(2027,0,1), YDAYS = 365;
+
+const state = {
+  regions:new Set(REGIONS), types:new Set(TYPES), status:new Set(["confirmed","projected"]),
+  wAud:Object.fromEntries(AUDS.map(a=>[a,1])), wReg:Object.fromEntries(REGIONS.map(r=>[r,1])),
+  pins:new Set(), exhibit:new Set()
+};
+
+const $ = id => document.getElementById(id);
+const ms = s => Date.parse(s+"T00:00:00Z");
+const doy = s => Math.round((ms(s)-Y0)/DAY);
+const intl = e => e.region !== "U.S.";
+const fmt = (s,o) => new Date(ms(s)).toLocaleDateString("en-GB",Object.assign({timeZone:"UTC",day:"numeric",month:"short"},o||{}));
+const range = e => { const a=new Date(ms(e.start)),b=new Date(ms(e.end)); return a.getUTCMonth()===b.getUTCMonth()? `${a.getUTCDate()}–${b.getUTCDate()} ${fmt(e.end,{day:undefined})}` : `${fmt(e.start)} – ${fmt(e.end)}`; };
+const usd = n => "$"+Math.round(n).toLocaleString("en-US");
+const label = e => e.short || e.name;
+const quarter = e => Math.floor(new Date(ms(e.start)).getUTCMonth()/3);
+const el = (t,c,txt) => { const n=document.createElement(t); if(c) n.className=c; if(txt!=null) n.textContent=txt; return n; };
+const num = id => Math.max(0, Number($(id).value)||0);
+
+function settings(){
+  return { lanes: Math.min(4,Math.max(1,Math.round(num("travellers"))||1)), budget:num("budget"), qcap:Math.max(1,Math.round(num("qcap"))||1),
+           bufD:Math.round(num("bufD")), bufI:Math.round(num("bufI")), costD:num("costD"), costI:num("costI"), costX:num("costX") };
+}
+function score(e){ return state.wAud[e.aud] * state.wReg[e.region]; }
+function cost(e,s){ return (intl(e)?s.costI:s.costD) + (state.exhibit.has(e.id)?s.costX:0); }
+function span(e,s){ const b = intl(e)?s.bufI:s.bufD; return [doy(e.start)-b, doy(e.end)+b]; }
+function overlaps(a,b,s){ const [a0,a1]=span(a,s),[b0,b1]=span(b,s); return a0<=b1 && b0<=a1; }
+function visible(e){ return state.regions.has(e.region) && state.types.has(e.type) && state.status.has(e.status); }
+
+function plan(){
+  const s = settings();
+  const active = EVENTS.filter(e=>visible(e) && score(e)>0);
+  const order = [...active].sort((a,b)=> (state.pins.has(b.id)-state.pins.has(a.id)) || (score(b)-score(a)) || (cost(a,s)-cost(b,s)) || (doy(a.start)-doy(b.start)));
+  const lanes = Array.from({length:s.lanes},()=>[]);
+  const placed = new Map(); const reasons = new Map(); const perQ=[0,0,0,0]; let spent=0;
+
+  const tryPlace = e => {
+    const c = cost(e,s);
+    if (spent + c > s.budget) return {ok:false, why:`Over budget: needs ${usd(c)}, ${usd(Math.max(0,s.budget-spent))} left.`, kind:"budget"};
+    if (perQ[quarter(e)] >= s.qcap) return {ok:false, why:`Q${quarter(e)+1} is full (${s.qcap} events).`, kind:"cap"};
+    // Spread the load: of the travellers free on these dates, pick the one with fewest days on the road so far.
+    const load = L => L.reduce((t,x)=>{ const [a,b]=span(x,s); return t+b-a+1; },0);
+    const free = lanes.map((L,i)=>i).filter(i=>!lanes[i].some(x=>overlaps(x,e,s)));
+    if (free.length){ free.sort((a,b)=>load(lanes[a])-load(lanes[b])||a-b); return {ok:true,lane:free[0],c}; }
+    const blockers = lanes.map((L,i)=>({i, list:L.filter(x=>overlaps(x,e,s))}));
+    const names = [...new Set(blockers.flatMap(b=>b.list.map(label)))];
+    return {ok:false, kind:"clash", why:`Clashes with ${names.join(" and ")}${s.lanes>1?" across every traveller":""}, counting travel days.`, blockers};
+  };
+  const put = (e,lane,c) => { lanes[lane].push(e); placed.set(e.id,lane); perQ[quarter(e)]++; spent+=c; reasons.delete(e.id); };
+  const take = (e,s) => { const i=placed.get(e.id); lanes[i]=lanes[i].filter(x=>x.id!==e.id); placed.delete(e.id); perQ[quarter(e)]--; spent-=cost(e,s); };
+
+  for (const e of order){ const r=tryPlace(e); if (r.ok) put(e,r.lane,r.c); else reasons.set(e.id,r); }
+
+  // Swap pass: drop lower-scoring blockers in one lane if a single higher-scoring event fits in their place.
+  for (let pass=0; pass<3; pass++){
+    let changed=false;
+    for (const e of order){
+      if (placed.has(e.id)) continue;
+      const r = reasons.get(e.id); if (!r || r.kind!=="clash") continue;
+      for (const b of r.blockers){
+        if (!b.list.length || b.list.some(x=>state.pins.has(x.id))) continue;
+        const lost = b.list.reduce((t,x)=>t+score(x),0);
+        if (!(score(e) > lost) && !state.pins.has(e.id)) continue;
+        b.list.forEach(x=>take(x,s));
+        const ok = !lanes[b.i].some(x=>overlaps(x,e,s)) && spent+cost(e,s)<=s.budget && perQ[quarter(e)]<s.qcap;
+        if (ok){ put(e,b.i,cost(e,s)); b.list.forEach(x=>reasons.set(x.id,{kind:"swap",why:`Swapped out for ${label(e)}, which scores higher on your weights.`})); changed=true; break; }
+        b.list.forEach(x=>put(x,b.i,cost(x,s)));
+      }
+    }
+    if (!changed) break;
+  }
+  // Refresh clash reasons against the final plan.
+  for (const e of active){ if (placed.has(e.id)) continue; const r=reasons.get(e.id); if (r && r.kind==="clash"){ const nr=tryPlace(e); if(!nr.ok) reasons.set(e.id,nr); } }
+  const hidden = EVENTS.filter(e=>!visible(e) || score(e)===0);
+  return {s, lanes, placed, reasons, spent, perQ, active, hidden};
+}
+
+function render(){
+  const P = plan(), s = P.s;
+  const n = P.placed.size;
+  const roadDays = [...P.placed.keys()].reduce((t,id)=>{ const e=EVENTS.find(x=>x.id===id); const [a,b]=span(e,s); return t+(b-a+1); },0);
+  const q4 = [...P.placed.keys()].map(id=>EVENTS.find(x=>x.id===id)).filter(e=>{ const m=new Date(ms(e.start)).getUTCMonth(); return m>=6&&m<=8; }).length;
+  $("plan-head").textContent = n ? `${n} events, no clashes` : "No events fit these settings";
+  $("plan-sub").textContent = `${s.lanes} ${s.lanes===1?"person":"people"} travelling, ${usd(P.spent)} of ${usd(s.budget)}, at most ${s.qcap} a quarter. ${P.active.length} events in scope after filters.`;
+  const st = $("stats"); st.replaceChildren();
+  [[n,"events in the plan"],[usd(P.spent),`of ${usd(s.budget)} budget`],[roadDays,"person-days on the road"],[q4,"in U.S. FY Q4 (Jul–Sep)"]].forEach(([v,l],i)=>{ const d=el("div"); const b=el("b",i===1&&P.spent>s.budget?"over":"",String(v)); d.append(b,el("span","",l)); st.append(d); });
+
+  // Timeline
+  const tl = $("tl"); tl.replaceChildren();
+  const months = el("div","tl-months"); ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].forEach(m=>months.append(el("div","",m))); tl.append(months);
+  const lanesWrap = el("div"); lanesWrap.style.position="relative";
+  const pct = d => (Math.max(0,Math.min(YDAYS,d))/YDAYS*100)+"%";
+  P.lanes.forEach((L,i)=>{
+    const row = el("div","lane"); const nm = el("div","lane-name"); const sw=el("i"); sw.style.background=LANE_COL[i]; nm.append(sw, `Traveller ${"ABCD"[i]}`);
+    const tr = el("div","lane-track");
+    [...L].sort((a,b)=>doy(a.start)-doy(b.start)).forEach(e=>{
+      const [a,b]=span(e,s), s0=doy(e.start), e0=doy(e.end)+1;
+      const bar = el("div","bar"+(state.pins.has(e.id)?" pin":""));
+      bar.style.left=pct(a); bar.style.width=`calc(${pct(b+1)} - ${pct(a)})`; bar.style.background=LANE_COL[i];
+      const pre=el("span","buf"); pre.style.left="0"; pre.style.width=((s0-a)/(b+1-a)*100)+"%";
+      const post=el("span","buf"); post.style.right="0"; post.style.width=((b+1-e0)/(b+1-a)*100)+"%";
+      bar.append(pre,post);
+      bar.title = `${e.name} · ${e.city} · ${range(e)} 2027 · ${e.status}`;
+      tr.append(bar);
+    });
+    row.append(nm,tr); lanesWrap.append(row);
+  });
+  tl.append(lanesWrap);
+  // Overlays: positioned against the track area (offset 90px for lane names)
+  const ov = el("div"); ov.style.cssText="position:absolute;left:90px;right:0;top:0;bottom:0;pointer-events:none";
+  const q = el("div","q4"); q.style.left=pct(doy("2027-07-01")); q.style.width=`calc(${pct(doy("2027-10-01"))} - ${pct(doy("2027-07-01"))})`; q.append(el("span","","U.S. FY Q4")); ov.append(q);
+  [["2027-03-31","UK, Canada, Japan FY end"],["2027-06-30","Australia FY end"],["2027-09-30","U.S. FY end"]].forEach(([d,t])=>{ const f=el("div","fy"); f.style.left=pct(doy(d)+1); f.title=t; ov.append(f); });
+  tl.append(ov, el("div","tl-foot"));
+  const lg=$("legend"); lg.replaceChildren();
+  const li=(sw,t)=>{ const s=el("span"); s.append(sw,t); lg.append(s); };
+  const a=el("i"); a.style.background="#4d6a78"; li(a,"Event, with travel days shaded lighter");
+  const p=el("i"); p.style.cssText="background:#4d6a78;box-shadow:inset 0 0 0 2px #f2c94c"; li(p,"Must go");
+  const f=el("i"); f.style.cssText="width:0;height:12px;border-left:1px dashed #9aa6ab;border-radius:0"; li(f,"FY ends: UK, Canada, Japan 31 Mar · Australia 30 Jun · U.S. 30 Sep");
+
+  // Month agenda: one row per month, one column per traveller
+  const ag=$("agenda"); ag.replaceChildren(); ag.style.setProperty("--lanes",s.lanes);
+  const head=el("div","ag-row head"); head.append(el("div","",""));
+  P.lanes.forEach((_,i)=>head.append(el("div","",`Traveller ${"ABCD"[i]}`))); ag.append(head);
+  ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].forEach((m,mi)=>{
+    const row=el("div","ag-row"+(mi>=6&&mi<=8?" fyrow":"")); const mc=el("div","m",m); if(mi===8) mc.title="U.S. federal FY ends 30 Sep"; row.append(mc);
+    P.lanes.forEach((L,i)=>{
+      const cell=el("div"); const evs=L.filter(e=>new Date(ms(e.start)).getUTCMonth()===mi).sort((a,b)=>doy(a.start)-doy(b.start));
+      if(!evs.length) cell.append(el("span","dash","·"));
+      evs.forEach(e=>{ const c=el("span","ev-chip"+(state.pins.has(e.id)?" pin":"")); c.style.borderColor=state.pins.has(e.id)?"#f2c94c":LANE_HEX[i];
+        c.append(label(e)); c.append(el("small","",`${range(e)} · ${e.city}`)); cell.append(c); });
+      row.append(cell);
+    });
+    ag.append(row);
+  });
+
+  // Why not
+  const why=$("why"); why.replaceChildren();
+  const left = P.active.filter(e=>!P.placed.has(e.id)).sort((a,b)=>score(b)-score(a)||doy(a.start)-doy(b.start));
+  if (!left.length){ why.append(el("li","dim","Everything in scope made the plan.")); }
+  left.slice(0,10).forEach(e=>{
+    const r=P.reasons.get(e.id); const it=el("li");
+    const t=el("div"); t.append(el("b","",label(e)), ` · ${e.city}, ${range(e)}`);
+    it.append(t, el("span","score",`weight ${score(e).toFixed(1)}`), el("div","r",r?r.why:"Not placed."));
+    why.append(it);
+  });
+  if (left.length>10) why.append(el("li","dim",`+${left.length-10} more, lower weight.`));
+  if (P.hidden.length) why.append(el("li","dim",`${P.hidden.length} events filtered out or weighted 0.`));
+
+  // Table
+  const tb=$("rows"); tb.replaceChildren(); $("count").textContent=`· ${EVENTS.length}`;
+  EVENTS.forEach(e=>{
+    const tr=el("tr"); if(!visible(e)||score(e)===0) tr.style.opacity=".45";
+    tr.append(el("td","",range(e)));
+    const ev=el("td","ev"); const a=el("a","",e.name); a.href=e.src; a.target="_blank"; a.rel="noopener"; ev.append(a, el("small","",`${e.city}, ${e.cc} · ${e.type}`)); tr.append(ev);
+    tr.append(el("td","",e.aud));
+    const stt=el("td"); const tg=el("span","tag "+(e.status==="confirmed"?"conf":"proj"), e.status==="confirmed"?"Confirmed":"Projected"); if(e.note) tg.title=e.note; stt.append(tg); if(e.note){ const n=el("small","dim"); n.style.display="block"; n.textContent=e.note; stt.append(n);} tr.append(stt);
+    const pl=el("td"); if(P.placed.has(e.id)){ const i=P.placed.get(e.id); const t=el("span","tag lane","Traveller "+"ABCD"[i]); t.style.background=LANE_HEX[i]; if(i>=2) t.style.color="#0d1418"; pl.append(t);} else pl.append(el("span","dim","—")); tr.append(pl);
+    const mk=(set,id,lbl)=>{ const td=el("td"); const lab=el("label","pinbox"); const cb=el("input"); cb.type="checkbox"; cb.checked=set.has(id); cb.setAttribute("aria-label",`${lbl} ${e.name}`); cb.addEventListener("change",()=>{ cb.checked?set.add(id):set.delete(id); render(); }); lab.append(cb); td.append(lab); return td; };
+    tr.append(mk(state.pins,e.id,"Must go:"), mk(state.exhibit,e.id,"Exhibit at"));
+    tb.append(tr);
+  });
+  window.__plan = P;
+}
+
+// Controls
+function chipGroup(id, values, set, labels){
+  const box=$(id); box.replaceChildren();
+  values.forEach((v,i)=>{ const b=el("button","chip",labels?labels[i]:v); b.type="button"; b.setAttribute("aria-pressed",set.has(v)); b.addEventListener("click",()=>{ set.has(v)?set.delete(v):set.add(v); b.setAttribute("aria-pressed",set.has(v)); render(); }); box.append(b); });
+}
+function sliders(id, obj){
+  const box=$(id); box.replaceChildren();
+  Object.keys(obj).forEach(k=>{ const r=el("div","row"); const l=el("label","",k); const w=el("span"); const inp=el("input"); inp.type="range"; inp.min=0; inp.max=3; inp.step=.5; inp.value=obj[k]; inp.setAttribute("aria-label",`Weight for ${k}`); const o=el("output","",obj[k].toFixed(1)+"×");
+    inp.addEventListener("input",()=>{ obj[k]=Number(inp.value); o.textContent=obj[k].toFixed(1)+"×"; render(); }); w.append(inp,o); r.append(l,w); box.append(r); });
+}
+function presets(){
+  const box=$("presets");
+  Object.entries(PRESETS).forEach(([n,regs])=>{ const b=el("button","chip",n); b.type="button"; b.addEventListener("click",()=>{ state.regions=new Set(regs); chipGroup("f-region",REGIONS,state.regions); render(); }); box.append(b); });
+}
+chipGroup("f-region",REGIONS,state.regions);
+chipGroup("f-type",TYPES,state.types);
+chipGroup("f-status",STATUS.map(s=>s[0]),state.status,STATUS.map(s=>s[1]));
+sliders("w-aud",state.wAud); sliders("w-reg",state.wReg); presets();
+["travellers","budget","qcap","bufD","bufI","costD","costI","costX"].forEach(id=>$(id).addEventListener("input",render));
+
+// Exports
+function download(name, type, text){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.append(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},500); }
+const ymd = s => s.replaceAll("-","");
+const nextDay = s => new Date(ms(s)+DAY).toISOString().slice(0,10);
+const esc = t => String(t).replace(/[\\;,]/g,m=>"\\"+m);
+$("ics").addEventListener("click",()=>{
+  const P=window.__plan; const stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
+  const lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//GTM calendar demo//EN","CALSCALE:GREGORIAN"];
+  for (const [id,lane] of P.placed){ const e=EVENTS.find(x=>x.id===id);
+    lines.push("BEGIN:VEVENT",`UID:${id}-2027@gtm-calendar`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${ymd(e.start)}`,`DTEND;VALUE=DATE:${ymd(nextDay(e.end))}`,
+      `SUMMARY:${esc(e.name)} (Traveller ${"ABCD"[lane]})`,`LOCATION:${esc(e.city+", "+e.cc)}`,`DESCRIPTION:${esc(`Dates ${e.status}. Source: ${e.src}`)}`,"END:VEVENT"); }
+  lines.push("END:VCALENDAR"); download("gtm-calendar-2027.ics","text/calendar",lines.join("\r\n"));
+});
+$("csv").addEventListener("click",()=>{
+  const P=window.__plan, s=P.s; const q=v=>`"${String(v).replace(/"/g,'""')}"`;
+  const out=[["Event","City","Country","Start","End","Type","Audience","Date status","Traveller","Est. cost (your inputs)","Source"].map(q).join(",")];
+  [...P.placed.entries()].map(([id,l])=>[EVENTS.find(x=>x.id===id),l]).sort((a,b)=>doy(a[0].start)-doy(b[0].start)).forEach(([e,l])=>out.push([e.name,e.city,e.cc,e.start,e.end,e.type,e.aud,e.status,"ABCD"[l],cost(e,s),e.src].map(q).join(",")));
+  download("gtm-calendar-2027.csv","text/csv",out.join("\n"));
+});
+
+render();
+</script>
+</body>
+</html>
